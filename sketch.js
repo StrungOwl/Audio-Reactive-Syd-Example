@@ -5,6 +5,9 @@
 let mic; // Microphone input
 let vol; // Volume or amplitude
 let fft; // Frequency analysis
+let sensitivity = 0.5; // Sensitivity to volume changes
+let sensitivitySlider; // Slider to adjust sensitivity
+let alphaButton;
 
 let globeScale; // Scale factor for the globe
 
@@ -13,6 +16,7 @@ let soundOn = false; // Flag to check if sound is playing
 
 let h = 0; //background hue
 let showCube = false; // Flag to show cube
+let alphaOn = true; // Flag to show alpha
 
 // Grid settings
 let gridCols = 10; // Number of columns in the grid
@@ -37,7 +41,7 @@ function setup() {
     globeScale = min(width, height); // Set the scale based on the smaller dimension
     getAudioContext().suspend(); // Suspend the audio context until user interaction
 
-    colorMode(HSB); // Use HSB color mode for easier color manipulation
+    colorMode(HSB, 360, 100, 100, 1); // Use HSB color mode for easier color manipulation
 
     fft = new p5.FFT(); // Create a new FFT object for frequency analysis
     mic = new p5.AudioIn(); // Create a new AudioIn object for microphone input
@@ -55,6 +59,15 @@ function setup() {
         positions.push(createVector(0, 0, 0)); // Initialize positions
         velocities.push(createVector(0, 0, 0)); // Initialize velocities
     }
+
+    // Create a slider to adjust sensitivity
+    sensitivitySlider = createSlider(0, 1, sensitivity, 0.01);
+    sensitivitySlider.id('sensitivitySlider'); // Assign an ID to the slider
+    alphaButton = createButton('Toggle Alpha');
+    alphaButton.id('alphaButton');
+    alphaButton.mousePressed(() => {
+        alphaOn = !alphaOn;
+    });
 }
 
 // Draw function to render the spheres on the canvas
@@ -62,7 +75,7 @@ function draw() {
     background(h, 67, 50, 10); // Semi-transparent background for tracers
     h = (h + 0.1) % 360; // Update background hue
 
-    vol = mic.getLevel(); // Get the volume level from the microphone
+    sensitivity = sensitivitySlider.value(); // Get the sensitivity value from the slider
 
     let spectrum = fft.analyze(); // Analyze the frequency spectrum
 
@@ -70,22 +83,22 @@ function draw() {
     for (let y = 0; y < gridRows; y++) {
         for (let x = 0; x < gridCols; x++) {
             // Map the frequency spectrum to sphere size
-            let targetSize = map(spectrum[index % spectrum.length], 0, 255, 10, 50); // Adjusted max size to fit within canvas
+            let targetSize = map(spectrum[index % spectrum.length], 0, 255, 10, 100 * sensitivity); // Adjusted max size to fit within canvas
             let sphereSize = lerp(prevSizes[index], targetSize, 0.1); // Easing with lerp
             prevSizes[index] = sphereSize; // Update previous size
 
             let scaleNum = globeScale * 0.005; // Scale factor for the sphere size
-            
+
             // Map the grid position to canvas coordinates
             let posX = map(x, 0, gridCols - 1, -width / 2 + sphereSize * scaleNum, width / 2 - sphereSize * scaleNum);
             let posY = map(y, 0, gridRows - 1, -height / 2 + sphereSize * scaleNum, height / 2 - sphereSize * scaleNum);
-            
+
             // Get noise value for z position
             let noiseVal = noise(noiseOffsets[index] + frameCount * 0.01); // Get noise value
             let targetZ = map(noiseVal, 0, 1, -200, 200); // Constrained z position range
             let zPos = lerp(prevZPositions[index], targetZ, 0.1); // Easing with lerp
             prevZPositions[index] = zPos; // Update previous z position
-            
+
             // Update position vector
             positions[index].set(posX, posY, zPos);
 
@@ -108,25 +121,27 @@ function draw() {
 
             noStroke(); // No outline for the spheres
             let targetHue = map(spectrum[index % spectrum.length], 0, 255, 0, 360); // Map spectrum to hue
-            let targetColor = color(targetHue, 100, 80, 0.1); // Target color
+
+            //LOGIC TO TOGGLE ALPHA---------------------
+            let targetAlpha = alphaOn ? 0.2 : 1.0; // Set alpha based on alphaOn
+            
+            let targetColor = color(targetHue, 100, 80, targetAlpha); // Target color with appropriate alpha
             let sphereColor = lerpColor(prevColors[index], targetColor, 0.1); // Easing with lerpColor
             prevColors[index] = sphereColor; // Update previous color
             
-            ambientMaterial(sphereColor); // Transparent material with eased color
+            fill(sphereColor); // Transparent material with eased color
             directionalLight(targetHue, 100, 70, 0, 0, -1); // Add directional light
-            
+
             push(); // Save the current transformation matrix
             translate(positions[index].x, positions[index].y, positions[index].z); // Move on x, y, and z axis
             rotateY(frameCount * 0.01); // Add rotation
-            if(!showCube){
-            sphere(sphereSize * scaleNum); // Draw the sphere
+            if (!showCube) {
+                sphere(sphereSize * scaleNum); // Draw the sphere
             } else {
                 box(sphereSize * scaleNum); // Draw the cube
             }
             setTimeout(() => {
-                
-                showCube = true; 
-
+                showCube = true;
             }, 60000); // Delay to prevent flickering
 
             pop(); // Restore the previous transformation matrix

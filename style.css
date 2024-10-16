@@ -5,4 +5,68 @@ html, body {
   canvas {
     display: block;
   }
-  
+
+  #alphaButton {
+    position: absolute;
+    top: 5vh;
+    left: 1vw;
+    width: 5%;
+    height: 5%;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1vh;
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+  }
+
+  /* Style the slider */
+#sensitivitySlider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  position: absolute; 
+  top:2vh; /* Position the slider */
+  left: 1vw; /* Position the slider */
+  width: 30%; /* Full-width */
+  height: 1vh; /* Slider thickness */
+  background: #d3d3d3; /* Slider background */
+  outline: none; /* Remove outline */
+  border-radius: 1vh; /* Rounded corners */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  transition: opacity .2s; /* 0.2 seconds transition on hover */
+}
+
+/* Mouse-over effects */
+#sensitivitySlider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use webkit (Chrome, Opera, Safari, Edge) */
+#sensitivitySlider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 2vh; /* Handle height */
+  height: 2vh; /* Handle width */
+  background: #4CAF50; /* Green handle */
+  border-radius: 50%; /* Make it a circle */
+  cursor: pointer; /* Cursor on hover */
+}
+
+/* The slider handle (use for Firefox) */
+#sensitivitySlider::-moz-range-thumb {
+  width: 25px; /* Handle width */
+  height: 25px; /* Handle height */
+  background: #4CAF50; /* Green handle */
+  border-radius: 50%; /* Make it a circle */
+  cursor: pointer; /* Cursor on hover */
+}
+
+/* The slider handle (use for Internet Explorer) */
+#sensitivitySlider::-ms-thumb {
+  width: 25px; /* Handle width */
+  height: 25px; /* Handle height */
+  background: #4CAF50; /* Green handle */
+  border-radius: 50%; /* Make it a circle */
+  cursor: pointer; /* Cursor on hover */
+}
+
