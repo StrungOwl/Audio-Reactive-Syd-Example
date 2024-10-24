@@ -8,7 +8,7 @@ let fft; // Frequency analysis
 let sensitivity = 0.5; // Sensitivity to volume changes
 let sensitivitySlider; // Slider to adjust sensitivity
 let alphaButton;
-
+let change; 
 let globeScale; // Scale factor for the globe
 
 let sound; // Sound file
