@@ -8,6 +8,7 @@ let fft; // Frequency analysis
 let sensitivity = 0.5; // Sensitivity to volume changes
 let sensitivitySlider; // Slider to adjust sensitivity
 let alphaButton;
+let hueRange = 180; // middle, so the slider can go both ways 0 - 360
 
 let globeScale; // Scale factor for the globe
 
@@ -30,9 +31,16 @@ let prevColors = []; // Store previous colors for easing
 let positions = []; // Store positions for collision detection
 let velocities = []; // Store velocities for smooth movement
 
+//Textures
+let imgArray = [];
+let ranTextIndex = 0;
+
 // Preload the sound file
 function preload() {
     sound = loadSound('olivaresdavid.wav');
+    for (let i = 0; i < 6; i++) {
+        imgArray[i] = loadImage(`Sphere Texture/${i}.png`);
+    }
 }
 
 // Setup function to initialize the canvas and audio input
@@ -48,7 +56,7 @@ function setup() {
     mic.start(); // Start the microphone
     fft.setInput(mic); // Set the microphone as the input for the FFT
 
-    sound.play(); // Play the sound file
+    //sound.play(); // Play the sound file
 
     // Initialize arrays for easing and noise offsets
     for (let i = 0; i < gridCols * gridRows; i++) {
@@ -63,19 +71,39 @@ function setup() {
     // Create a slider to adjust sensitivity
     sensitivitySlider = createSlider(0, 1, sensitivity, 0.01);
     sensitivitySlider.id('sensitivitySlider'); // Assign an ID to the slider
+
+    hueSlider = createSlider(0, 360, hueRange, 1);
+    hueSlider.id('hueSlider'); // Assign an ID to the slider
+
+    gridColSlider = createSlider(1, 10, 5, 1);
+    gridColSlider.id('gridColSlider'); // Assign an ID to the slider
+    gridRowsSlider = createSlider(1, 10, 5, 1);
+    gridRowsSlider.id('gridRowsSlider'); // Assign an ID to the slider
+
     alphaButton = createButton('Toggle Alpha');
     alphaButton.id('alphaButton');
     alphaButton.mousePressed(() => {
         alphaOn = !alphaOn;
     });
+
+    texButton = createButton('Random\nTexture');
+    texButton.id('texButton');
+    texButton.mousePressed(() => {
+        ranTextIndex = Math.floor(random(0, 6));
+    });
 }
 
 // Draw function to render the spheres on the canvas
 function draw() {
+
     background(h, 67, 50, 10); // Semi-transparent background for tracers
     h = (h + 0.1) % 360; // Update background hue
 
+    //SET SLIDER VALUES
     sensitivity = sensitivitySlider.value(); // Get the sensitivity value from the slider
+    hueRange = hueSlider.value(); // Get the hue range value from the slider
+    gridCols = gridColSlider.value();
+    gridRows = gridRowsSlider.value();
 
     let spectrum = fft.analyze(); // Analyze the frequency spectrum
 
@@ -120,16 +148,21 @@ function draw() {
             velocities[index].mult(0.9); // Dampen velocities for smooth movement
 
             noStroke(); // No outline for the spheres
-            let targetHue = map(spectrum[index % spectrum.length], 0, 255, 0, 360); // Map spectrum to hue
+            let targetHue = map(spectrum[index % spectrum.length], 0, 255, 0, hueRange); // Map spectrum to hue
 
             //LOGIC TO TOGGLE ALPHA---------------------
             let targetAlpha = alphaOn ? 0.2 : 1.0; // Set alpha based on alphaOn
-            
+
+
+
             let targetColor = color(targetHue, 100, 80, targetAlpha); // Target color with appropriate alpha
             let sphereColor = lerpColor(prevColors[index], targetColor, 0.1); // Easing with lerpColor
             prevColors[index] = sphereColor; // Update previous color
-            
-            fill(sphereColor); // Transparent material with eased color
+
+            //SET TEXTURE
+            tint(sphereColor, targetAlpha);
+            texture(imgArray[ranTextIndex]);
+            //fill(sphereColor); // Transparent material with eased color
             directionalLight(targetHue, 100, 70, 0, 0, -1); // Add directional light
 
             push(); // Save the current transformation matrix
@@ -150,6 +183,10 @@ function draw() {
             index++; // Move to the next sphere
         }
     }
+
+    //blendMode(SCREEN); // Set blend mode to soft light
+    //console.log(ranTextIndex);
+
 }
 
 // Function to resume audio context on mouse press
