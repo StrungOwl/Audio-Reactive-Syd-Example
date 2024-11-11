@@ -113,7 +113,7 @@ function draw() {
         let targetHue = map(spectrum[i % spectrum.length], 0, 255, 0, hueRange); // Map spectrum to hue
 
         // LOGIC TO TOGGLE ALPHA
-        let targetAlpha = alphaOn ? 0.2 : 1.0; // Set alpha based on alphaOn
+        let targetAlpha = alphaOn ? 0.4 : 1.0; // Set alpha based on alphaOn
 
         let targetColor = color(targetHue, 100, 80, targetAlpha); // Target color with appropriate alpha
         let sphereColor = lerpColor(prevColors[i], targetColor, 0.1); // Easing with lerpColor

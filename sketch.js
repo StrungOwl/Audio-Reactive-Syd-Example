@@ -151,7 +151,7 @@ function draw() {
             let targetHue = map(spectrum[index % spectrum.length], 0, 255, 0, hueRange); // Map spectrum to hue
 
             //LOGIC TO TOGGLE ALPHA---------------------
-            let targetAlpha = alphaOn ? 0.2 : 1.0; // Set alpha based on alphaOn
+            let targetAlpha = alphaOn ? 0.3 : 1.0; // Set alpha based on alphaOn
 
 
 
@@ -163,19 +163,23 @@ function draw() {
             tint(sphereColor, targetAlpha);
             texture(imgArray[ranTextIndex]);
             //fill(sphereColor); // Transparent material with eased color
-            directionalLight(targetHue, 100, 70, 0, 0, -1); // Add directional light
+            directionalLight(targetHue, 10, 70, 0, 0, -1); // Add directional light
 
             push(); // Save the current transformation matrix
             translate(positions[index].x, positions[index].y, positions[index].z); // Move on x, y, and z axis
             rotateY(frameCount * 0.01); // Add rotation
+
             if (!showCube) {
                 sphere(sphereSize * scaleNum); // Draw the sphere
             } else {
                 box(sphereSize * scaleNum); // Draw the cube
             }
+
+
+
             setTimeout(() => {
                 showCube = true;
-            }, 60000); // Delay to prevent flickering
+            }, 20000); // Delay to prevent flickering
 
             pop(); // Restore the previous transformation matrix
 
@@ -184,7 +188,6 @@ function draw() {
         }
     }
 
-    //blendMode(SCREEN); // Set blend mode to soft light
     //console.log(ranTextIndex);
 
 }
