@@ -179,7 +179,7 @@ function draw() {
 
             setTimeout(() => {
                 showCube = true;
-            }, 20000); // Delay to prevent flickering
+            }, 60000); 
 
             pop(); // Restore the previous transformation matrix
 
